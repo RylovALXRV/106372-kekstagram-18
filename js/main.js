@@ -1,5 +1,7 @@
 'use strict';
 
+/* ----- Личный проект: пока все дома ----- */
+
 var AMOUNT_IMAGES = 25;
 var imageParams = {
   AUTHOR_NAMES: ['Павел', 'Виктория', 'Владимир', 'Анастасия', 'Андрей', 'Светлана'],
@@ -80,3 +82,50 @@ var renderPictures = function (pictures) {
 var images = generateImages(AMOUNT_IMAGES);
 
 renderPictures(images);
+
+/* ----- Личный проект: больше деталей ----- */
+
+var bigPictureElement = document.querySelector('.big-picture');
+var socialCommentsElement = bigPictureElement.querySelector('.social__comments');
+
+var renderSocialComment = function (picture, element) {
+  picture.comments.forEach(function (comment) {
+    var node = element.cloneNode(true);
+
+    node.querySelector('.social__picture').alt = picture.name;
+    node.querySelector('.social__picture').src = 'img/avatar-' + getRandomNumber(1, 6) + '.svg';
+    node.querySelector('.social__text').textContent = comment;
+
+    socialCommentsElement.appendChild(node);
+  });
+};
+
+var appendSocialComments = function (picture) {
+  var socialCommentElements = socialCommentsElement.querySelectorAll('.social__comment');
+
+  for (var i = 0; i < socialCommentElements.length; i++) {
+    socialCommentElements[i].remove();
+  }
+
+  renderSocialComment(picture, socialCommentElements[0]);
+};
+
+var changeContentBigPicture = function (picture) {
+  bigPictureElement.querySelector('.big-picture__img img').src = picture.url;
+  bigPictureElement.querySelector('.comments-count').textContent = picture.comments.length;
+  bigPictureElement.querySelector('.likes-count').textContent = picture.likes;
+  bigPictureElement.querySelector('.social__caption').textContent = picture.description;
+
+  bigPictureElement.querySelector('.comments-loader').classList.add('visually-hidden');
+  bigPictureElement.querySelector('.social__comment-count').classList.add('visually-hidden');
+
+  appendSocialComments(picture);
+};
+
+var showBigPicture = function (picture) {
+  changeContentBigPicture(picture);
+
+  bigPictureElement.classList.remove('hidden');
+};
+
+showBigPicture(images[0]);
