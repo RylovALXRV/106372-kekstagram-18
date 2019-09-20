@@ -86,31 +86,31 @@ renderPictures(images);
 /* ----- Личный проект: больше деталей ----- */
 
 var bigPictureElement = document.querySelector('.big-picture');
-var socialCommentsElement = bigPictureElement.querySelector('.social__comments');
+var commentsElement = bigPictureElement.querySelector('.social__comments');
+var commentTemplate = document.querySelector('#comment').content.querySelector('.social__comment');
 
-var renderSocialComment = function (picture, element) {
+var renderComment = function (picture) {
   picture.comments.forEach(function (comment) {
-    var node = element.cloneNode(true);
+    var commentElement = commentTemplate.cloneNode(true);
+    var pictureElement = commentElement.querySelector('.social__picture');
 
-    node.querySelector('.social__picture').alt = picture.name;
-    node.querySelector('.social__picture').src = 'img/avatar-' + getRandomNumber(1, 6) + '.svg';
-    node.querySelector('.social__text').textContent = comment;
+    pictureElement.alt = picture.name;
+    pictureElement.src = 'img/avatar-' + getRandomNumber(1, 6) + '.svg';
+    commentElement.querySelector('.social__text').textContent = comment;
 
-    socialCommentsElement.appendChild(node);
+    commentsElement.appendChild(commentElement);
   });
 };
 
-var appendSocialComments = function (picture) {
-  var socialCommentElements = socialCommentsElement.querySelectorAll('.social__comment');
-
-  for (var i = 0; i < socialCommentElements.length; i++) {
-    socialCommentElements[i].remove();
+var appendComments = function (picture) {
+  while (commentsElement.firstChild) {
+    commentsElement.firstChild.remove();
   }
 
-  renderSocialComment(picture, socialCommentElements[0]);
+  renderComment(picture);
 };
 
-var changeContentBigPicture = function (picture) {
+var renderBigPicture = function (picture) {
   bigPictureElement.querySelector('.big-picture__img img').src = picture.url;
   bigPictureElement.querySelector('.comments-count').textContent = picture.comments.length;
   bigPictureElement.querySelector('.likes-count').textContent = picture.likes;
@@ -119,11 +119,11 @@ var changeContentBigPicture = function (picture) {
   bigPictureElement.querySelector('.comments-loader').classList.add('visually-hidden');
   bigPictureElement.querySelector('.social__comment-count').classList.add('visually-hidden');
 
-  appendSocialComments(picture);
+  appendComments(picture);
 };
 
 var showBigPicture = function (picture) {
-  changeContentBigPicture(picture);
+  renderBigPicture(picture);
 
   bigPictureElement.classList.remove('hidden');
 };
