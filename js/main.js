@@ -314,47 +314,87 @@ hashtagInputElement.addEventListener('input', function (evt) {
 * ----------
 *  --------         ФИЛЬТР ДЛЯ ПОЛЕЙ       ------------
 */
+var EffectParameter = {
+  chrome: {
+    CLASS: 'effects__preview--chrome',
+    PROPERTY: 'grayscale',
+    MIN_VALUE: 0,
+    MAX_VALUE: 1,
+    UNIT: ''
+  },
+  heat: {
+    CLASS: 'effects__preview--heat',
+    PROPERTY: 'brightness',
+    MIN_VALUE: 1,
+    MAX_VALUE: 3,
+    UNIT: ''
+  },
+  marvin: {
+    CLASS: 'effects__preview--marvin',
+    PROPERTY: 'invert',
+    MIN_VALUE: 0,
+    MAX_VALUE: 100,
+    UNIT: '%'
+  },
+  none: {
+    CLASS: 'effects__preview--none',
+    PROPERTY: ''
+  },
+  phobos: {
+    CLASS: 'effects__preview--phobos',
+    PROPERTY: 'blur',
+    MIN_VALUE: 0,
+    MAX_VALUE: 3,
+    UNIT: 'px'
+  },
+  sepia: {
+    CLASS: 'effects__preview--sepia',
+    PROPERTY: 'sepia',
+    MIN_VALUE: 0,
+    MAX_VALUE: 1,
+    UNIT: ''
+  }
+};
 
 var PERCENT_MAX = 100;
 
 var levelInputElement = levelElement.querySelector('.effect-level__value');
 var lineElement = picturesElement.querySelector('.effect-level__line');
+var depthElement = lineElement.querySelector('.effect-level__depth');
 var pinElement = lineElement.querySelector('.effect-level__pin');
 
 var filterValue = null;
 
 // Получаю центральную координату элемента с учетом смещения при нажатии
-var getCenterCoordElement = function (element, elementClientX) {
+var getPinCenterCoord = function (element, coord) {
   var coordsElement = element.getBoundingClientRect();
   var centerElement = coordsElement.right - (coordsElement.width / 2);
-  var shiftX = centerElement - elementClientX;
+  var shiftX = centerElement - coord;
 
-  return Math.round(elementClientX + shiftX);
+  return Math.round(coord + shiftX);
 };
 
 // Получаю значение пина для фильтра относительно ширины шкалы
-var getValueForFilter = function (scale, pin) {
-  var coordsScale = scale.getBoundingClientRect();
-  var pinLocation = pin - coordsScale.left;
+var getEffectValue = function (coord) {
+  var coordsScale = lineElement.getBoundingClientRect();
+  var pinLocation = coord - coordsScale.left;
 
   return Math.round(pinLocation * PERCENT_MAX / coordsScale.width);
 };
 
-var getFilterHtml = function (evt, filter, name) {
-  var centerCoordPinElement = getCenterCoordElement(pinElement, evt.clientX);
-  filterValue = getValueForFilter(lineElement, centerCoordPinElement);
+var getEffectHtml = function (evt, name) {
+  var pinCenterCoord = getPinCenterCoord(pinElement, evt.clientX);
+  filterValue = getEffectValue(pinCenterCoord);
 
-  return filter[name].PROPERTY + '(' + (filterValue * (filter[name].MAX_VALUE - filter[name].MIN_VALUE) / PERCENT_MAX
-    + filter[name].MIN_VALUE) + filter[name].UNIT + ')';
+  return EffectParameter[name].PROPERTY !== 'none' ?
+    EffectParameter[name].PROPERTY + '(' +
+    (filterValue * (EffectParameter[name].MAX_VALUE - EffectParameter[name].MIN_VALUE) / PERCENT_MAX
+    + EffectParameter[name].MIN_VALUE) + EffectParameter[name].UNIT + ')' :
+    '';
 };
 
-var resetStylesSwitchSample = function () {
-  imgPreviewElement.style.filter = '';
-  levelInputElement.value = '';
-};
-
-var setFilter = function (evt, filter, effectName) {
-  imgPreviewElement.style.filter = getFilterHtml(evt, filter, effectName);
+var setEffect = function (evt, effect, effectName) {
+  imgPreviewElement.style.filter = getEffectHtml(evt, effect, effectName);
   levelInputElement.value = filterValue;
 
   filterValue = null;
@@ -370,45 +410,19 @@ var showElement = function (target, element) {
 };
 
 var pinClickHandler = function (evt) {
-  var EffectParam = {
-    chrome: {
-      CLASS: 'effects__preview--chrome',
-      PROPERTY: 'grayscale',
-      MIN_VALUE: 0,
-      MAX_VALUE: 1,
-      UNIT: ''
-    },
-    heat: {
-      CLASS: 'effects__preview--heat',
-      PROPERTY: 'brightness',
-      MIN_VALUE: 1,
-      MAX_VALUE: 3,
-      UNIT: ''
-    },
-    marvin: {
-      CLASS: 'effects__preview--marvin',
-      PROPERTY: 'invert',
-      MIN_VALUE: 0,
-      MAX_VALUE: 100,
-      UNIT: '%'
-    },
-    phobos: {
-      CLASS: 'effects__preview--phobos',
-      PROPERTY: 'blur',
-      MIN_VALUE: 0,
-      MAX_VALUE: 3,
-      UNIT: 'px'
-    },
-    sepia: {
-      CLASS: 'effects__preview--sepia',
-      PROPERTY: 'sepia',
-      MIN_VALUE: 0,
-      MAX_VALUE: 1,
-      UNIT: ''
-    }
-  };
+  setEffect(evt, inputChecked.value);
+};
 
-  setFilter(evt, EffectParam, inputChecked.value);
+var setOriginalPreviewEffect = function (value) {
+  var effectPreview = (value !== 'none') ?
+    EffectParameter[value].PROPERTY + '(' + EffectParameter[value].MAX_VALUE
+    + EffectParameter[value].UNIT + ')' :
+    '';
+
+  imgPreviewElement.classList.add('effects__preview--' + value);
+  imgPreviewElement.style.filter = effectPreview;
+  depthElement.style.width = '100%';
+  pinElement.style.left = '100%';
 };
 
 var sampleFilterClickHandler = function (evt) {
@@ -423,9 +437,9 @@ var sampleFilterClickHandler = function (evt) {
   imgPreviewElement.className = '';
   inputChecked = target;
 
-  imgPreviewElement.classList.add('effects__preview--' + inputChecked.value);
+  setOriginalPreviewEffect(inputChecked.value);
 
-  resetStylesSwitchSample();
+  levelInputElement.value = '';
 };
 
 picturesElement.querySelector('.effects__list').addEventListener('click', sampleFilterClickHandler);
