@@ -43,8 +43,12 @@
     }
   };
 
+  var PinValue = {
+    MAX: 100,
+    MIN: 0
+  };
+
   var PERCENT_MAX = 100;
-  var PIN_ORIGIN_COORD = 0;
 
   var picturesElement = document.querySelector('.pictures');
   var imgPreviewElement = picturesElement.querySelector('.img-upload__preview img');
@@ -128,62 +132,43 @@
     levelInputElement.value = '';
   };
 
+  var getCoordResult = function (shift) {
+    var coord = (pinElement.offsetLeft - shift) * PinValue.MAX / lineElement.offsetWidth;
+
+    if (coord <= PinValue.MIN) {
+      coord = PinValue.MIN;
+    } else if (coord >= PinValue.MAX) {
+      coord = PinValue.MAX;
+    }
+
+    return coord;
+  };
+
+  var setPinPosition = function (coord) {
+    pinElement.style.left = coord + '%';
+    depthElement.style.width = coord + '%';
+  };
+
   lineElement.addEventListener('mousedown', function (evt) {
     evt.preventDefault();
-    var coordResult = null;
-    var dragged = false;
-    var target = evt.target;
 
-    var startCoord = {
-      x: evt.clientX
-    };
+    var startCoord = evt.clientX;
 
     var pinMousemoveHandler = function (moveEvt) {
       moveEvt.preventDefault();
-      dragged = true;
 
-      var shift = {
-        x: startCoord.x - moveEvt.clientX
-      };
+      var shift = startCoord - moveEvt.clientX;
+      startCoord = moveEvt.clientX;
 
-      startCoord = {
-        x: moveEvt.clientX
-      };
+      var coordResult = getCoordResult(shift);
 
-      coordResult = pinElement.offsetLeft - shift.x;
-
-      if (coordResult <= PIN_ORIGIN_COORD) {
-        coordResult = PIN_ORIGIN_COORD;
-      } else if (coordResult >= lineElement.offsetWidth) {
-        coordResult = lineElement.offsetWidth;
-      }
-
-      if (!target.classList.contains('effect-level__pin')) {
-        coordResult = pinElement.offsetLeft;
-      }
-
-      pinElement.style.left = coordResult + 'px';
-      depthElement.style.width = coordResult + 'px';
+      setPinPosition(coordResult);
+      setEffect(moveEvt, window.form.inputField);
     };
 
-    var pinMouseupHandler = function (upEvt) {
-      var pinCoords = pinElement.getBoundingClientRect();
-
-      var coordNewElements = pinElement.offsetLeft - (pinCoords.left - upEvt.clientX) - pinCoords.width / 2;
-
-      if (dragged) {
-        coordNewElements = coordResult;
-      }
-
-      pinElement.style.left = coordNewElements + 'px';
-      depthElement.style.width = coordNewElements + 'px';
-
-      setEffect(upEvt, window.form.inputField);
-
+    var pinMouseupHandler = function () {
       document.removeEventListener('mousemove', pinMousemoveHandler);
       document.removeEventListener('mouseup', pinMouseupHandler);
-
-      coordResult = null;
     };
 
     document.addEventListener('mousemove', pinMousemoveHandler);
