@@ -8,39 +8,46 @@
   var imgPreviewElement = picturesElement.querySelector('.img-upload__preview img');
   var uploadCancelElement = picturesElement.querySelector('.img-upload__cancel');
   var uploadFileElement = picturesElement.querySelector('#upload-file');
+  var inputChecked = picturesElement.querySelector('.effects__list input[checked]');
 
-  var previewCloseKeydownHandler = function (evt) {
-    if (evt.keyCode === window.util.ESC_KEYCODE &&
-      evt.target !== hashtagInputElement &&
-      evt.target !== descriptionFieldElement) {
-      window.util.closePopup(imgOverlayElement, previewCloseKeydownHandler);
-
-      uploadFileElement.value = '';
-    }
-  };
-
-  var resetStylesByOpenPopup = function () {
+  var resetForm = function () {
     descriptionFieldElement.textContent = '';
     hashtagInputElement.value = '';
     imgPreviewElement.style.transform = '';
     imgPreviewElement.style.filter = '';
     imgPreviewElement.className = '';
+    uploadFileElement.value = '';
+  };
+
+  var setDefaultValuesForm = function () {
     document.querySelector('.scale .scale__control--value').value = '100%';
-    picturesElement.querySelector('.effects__list input[checked]').checked = true;
+    inputChecked.checked = true;
     picturesElement.querySelector('.effect-level').classList.add('hidden');
   };
 
+  var previewCloseKeydownHandler = function (evt) {
+    if (evt.keyCode === window.util.ESC_KEYCODE &&
+      evt.target !== hashtagInputElement &&
+      evt.target !== descriptionFieldElement) {
+      resetForm();
+
+      window.util.closePopup(imgOverlayElement, previewCloseKeydownHandler);
+    }
+  };
+
   uploadFileElement.addEventListener('change', function () {
-    resetStylesByOpenPopup();
+    setDefaultValuesForm();
 
     window.util.openPopup(imgOverlayElement, previewCloseKeydownHandler);
   });
 
   uploadCancelElement.addEventListener('click', function () {
+    resetForm();
+
     window.util.closePopup(imgOverlayElement, previewCloseKeydownHandler);
   });
 
-  uploadCancelElement.addEventListener('keydown', function () {
-    window.util.closePopup(imgOverlayElement, previewCloseKeydownHandler);
-  });
+  window.form = {
+    inputField: inputChecked
+  };
 })();

@@ -47,7 +47,6 @@
 
   var picturesElement = document.querySelector('.pictures');
   var imgPreviewElement = picturesElement.querySelector('.img-upload__preview img');
-  var inputChecked = picturesElement.querySelector('.effects__list input:checked');
   var lineElement = picturesElement.querySelector('.effect-level__line');
   var depthElement = lineElement.querySelector('.effect-level__depth');
   var pinElement = lineElement.querySelector('.effect-level__pin');
@@ -84,15 +83,15 @@
       '';
   };
 
-  var setEffect = function (evt, effect, effectName) {
-    imgPreviewElement.style.filter = getEffectHtml(evt, effect, effectName);
+  var setEffect = function (evt, effect) {
+    imgPreviewElement.style.filter = getEffectHtml(evt, effect.value);
     levelInputElement.value = filterValue;
 
     filterValue = null;
   };
 
   var pinClickHandler = function (evt) {
-    setEffect(evt, inputChecked.value);
+    setEffect(evt, window.form.inputField);
   };
 
   var showElement = function (target, element) {
@@ -118,17 +117,16 @@
 
   var sampleFilterClickHandler = function (evt) {
     var target = evt.target;
-
-    if (target.tagName !== 'INPUT' || target === inputChecked) {
+    if (target.tagName !== 'INPUT' || target === window.form.inputField) {
       return;
     }
 
     showElement(target, levelElement);
 
     imgPreviewElement.className = '';
-    inputChecked = target;
+    window.form.inputField = target;
 
-    setOriginalPreviewEffect(inputChecked.value);
+    setOriginalPreviewEffect(window.form.inputField.value);
 
     levelInputElement.value = '';
   };
