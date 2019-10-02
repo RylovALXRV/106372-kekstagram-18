@@ -44,6 +44,7 @@
   };
 
   var PERCENT_MAX = 100;
+  var PIN_ORIGIN_COORD = 0;
 
   var picturesElement = document.querySelector('.pictures');
   var imgPreviewElement = picturesElement.querySelector('.img-upload__preview img');
@@ -90,10 +91,6 @@
     filterValue = null;
   };
 
-  var pinClickHandler = function (evt) {
-    setEffect(evt, window.form.inputField);
-  };
-
   var showElement = function (target, element) {
     if (target.value === 'none') {
       element.classList.add('hidden');
@@ -131,6 +128,67 @@
     levelInputElement.value = '';
   };
 
+  lineElement.addEventListener('mousedown', function (evt) {
+    evt.preventDefault();
+    var coordResult = null;
+    var dragged = false;
+    var target = evt.target;
+
+    var startCoord = {
+      x: evt.clientX
+    };
+
+    var pinMousemoveHandler = function (moveEvt) {
+      moveEvt.preventDefault();
+      dragged = true;
+
+      var shift = {
+        x: startCoord.x - moveEvt.clientX
+      };
+
+      startCoord = {
+        x: moveEvt.clientX
+      };
+
+      coordResult = pinElement.offsetLeft - shift.x;
+
+      if (coordResult <= PIN_ORIGIN_COORD) {
+        coordResult = PIN_ORIGIN_COORD;
+      } else if (coordResult >= lineElement.offsetWidth) {
+        coordResult = lineElement.offsetWidth;
+      }
+
+      if (!target.classList.contains('effect-level__pin')) {
+        coordResult = pinElement.offsetLeft;
+      }
+
+      pinElement.style.left = coordResult + 'px';
+      depthElement.style.width = coordResult + 'px';
+    };
+
+    var pinMouseupHandler = function (upEvt) {
+      var pinCoords = pinElement.getBoundingClientRect();
+
+      var coordNewElements = pinElement.offsetLeft - (pinCoords.left - upEvt.clientX) - pinCoords.width / 2;
+
+      if (dragged) {
+        coordNewElements = coordResult;
+      }
+
+      pinElement.style.left = coordNewElements + 'px';
+      depthElement.style.width = coordNewElements + 'px';
+
+      setEffect(upEvt, window.form.inputField);
+
+      document.removeEventListener('mousemove', pinMousemoveHandler);
+      document.removeEventListener('mouseup', pinMouseupHandler);
+
+      coordResult = null;
+    };
+
+    document.addEventListener('mousemove', pinMousemoveHandler);
+    document.addEventListener('mouseup', pinMouseupHandler);
+  });
+
   picturesElement.querySelector('.effects__list').addEventListener('click', sampleFilterClickHandler);
-  pinElement.addEventListener('mouseup', pinClickHandler);
 })();
