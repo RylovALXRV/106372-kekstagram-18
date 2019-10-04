@@ -25,7 +25,9 @@
     },
     none: {
       CLASS: 'effects__preview--none',
-      PROPERTY: ''
+      PROPERTY: '',
+      MIN_VALUE: 0,
+      MAX_VALUE: 0,
     },
     phobos: {
       CLASS: 'effects__preview--phobos',
@@ -48,6 +50,7 @@
     MIN: 0
   };
 
+  var DEFAULT_EFFECT = 'none';
   var PERCENT_MAX = 100;
 
   var picturesElement = document.querySelector('.pictures');
@@ -58,78 +61,40 @@
   var levelElement = picturesElement.querySelector('.effect-level');
   var levelInputElement = levelElement.querySelector('.effect-level__value');
 
-  var filterValue = null;
-
-  // Получаю центральную координату элемента с учетом смещения при нажатии
-  var getPinCenterCoord = function (element, coord) {
-    var coordsElement = element.getBoundingClientRect();
-    var centerElement = coordsElement.right - (coordsElement.width / 2);
-    var shiftX = centerElement - coord;
-
-    return Math.round(coord + shiftX);
-  };
+  var effectValue = null;
+  var pinCoord = null;
 
   // Получаю значение пина для фильтра относительно ширины шкалы
-  var getEffectValue = function (coord) {
+  var getPinCoord = function (coord) {
     var coordsScale = lineElement.getBoundingClientRect();
     var pinLocation = coord - coordsScale.left;
 
     return Math.round(pinLocation * PERCENT_MAX / coordsScale.width);
   };
 
-  var getEffectHtml = function (evt, name) {
-    var pinCenterCoord = getPinCenterCoord(pinElement, evt.clientX);
-    filterValue = getEffectValue(pinCenterCoord);
+  var getEffectValue = function (evt, name) {
+    pinCoord = getPinCoord(evt.clientX);
 
-    return EffectParameter[name].PROPERTY !== 'none' ?
-      EffectParameter[name].PROPERTY + '(' +
-      (filterValue * (EffectParameter[name].MAX_VALUE - EffectParameter[name].MIN_VALUE) / PERCENT_MAX
-        + EffectParameter[name].MIN_VALUE) + EffectParameter[name].UNIT + ')' :
-      '';
+    return (pinCoord * (EffectParameter[name].MAX_VALUE - EffectParameter[name].MIN_VALUE) / PERCENT_MAX
+      + EffectParameter[name].MIN_VALUE) + EffectParameter[name].UNIT;
+  };
+
+  var applyEffect = function (evt, name) {
+    return EffectParameter[name].PROPERTY + '(' + getEffectValue(evt, name) + ')';
   };
 
   var setEffect = function (evt, effect) {
-    imgPreviewElement.style.filter = getEffectHtml(evt, effect.value);
-    levelInputElement.value = filterValue;
+    imgPreviewElement.style.filter = applyEffect(evt, effect);
+    levelInputElement.value = pinCoord;
 
-    filterValue = null;
+    pinCoord = null;
   };
 
-  var showElement = function (target, element) {
-    if (target.value === 'none') {
-      element.classList.add('hidden');
-      return;
-    }
+  var setPinPosition = function (evt, effect, coord) {
+    pinElement.style.left = coord + '%';
+    depthElement.style.width = coord + '%';
 
-    element.classList.remove('hidden');
-  };
-
-  var setOriginalPreviewEffect = function (value) {
-    var effectPreview = (value !== 'none') ?
-      EffectParameter[value].PROPERTY + '(' + EffectParameter[value].MAX_VALUE
-      + EffectParameter[value].UNIT + ')' :
-      '';
-
-    imgPreviewElement.classList.add('effects__preview--' + value);
-    imgPreviewElement.style.filter = effectPreview;
-    depthElement.style.width = '100%';
-    pinElement.style.left = '100%';
-  };
-
-  var sampleFilterClickHandler = function (evt) {
-    var target = evt.target;
-    if (target.tagName !== 'INPUT' || target === window.form.inputField) {
-      return;
-    }
-
-    showElement(target, levelElement);
-
-    imgPreviewElement.className = '';
-    window.form.inputField = target;
-
-    setOriginalPreviewEffect(window.form.inputField.value);
-
-    levelInputElement.value = '';
+    setEffect(evt, effect);
   };
 
   var getCoordResult = function (shift) {
@@ -144,15 +109,59 @@
     return coord;
   };
 
-  var setPinPosition = function (coord) {
-    pinElement.style.left = coord + '%';
-    depthElement.style.width = coord + '%';
+  var resetEffectValue = function () {
+    if (picturesElement.querySelector('.effects__list input:checked').value === DEFAULT_EFFECT) {
+      effectValue = null;
+    }
+  };
+
+  var toggleEffectLevel = function (target) {
+    if (target.value === DEFAULT_EFFECT) {
+      levelElement.classList.add('hidden');
+      return;
+    }
+
+    levelElement.classList.remove('hidden');
+  };
+
+  var setMaxLevelEffect = function (name) {
+    var effectPreview = (name !== DEFAULT_EFFECT) ?
+      EffectParameter[name].PROPERTY + '(' + EffectParameter[name].MAX_VALUE
+      + EffectParameter[name].UNIT + ')' :
+      '';
+
+    imgPreviewElement.className = EffectParameter[name].CLASS;
+    imgPreviewElement.style.filter = effectPreview;
+    depthElement.style.width = '100%';
+    pinElement.style.left = '100%';
+  };
+
+  var effectClickHandler = function (evt) {
+    var target = evt.target;
+
+    resetEffectValue();
+
+    if (target.tagName !== 'INPUT' || target.value === effectValue) {
+      return;
+    }
+
+    toggleEffectLevel(target);
+
+    effectValue = target.value;
+
+    setMaxLevelEffect(effectValue);
   };
 
   lineElement.addEventListener('mousedown', function (evt) {
     evt.preventDefault();
 
+    var target = evt.target;
     var startCoord = evt.clientX;
+
+    // условие для того, чтобы при нажатии на пин он не сдвигал курсор мыши в центр
+    if (!target.classList.contains('effect-level__pin')) {
+      setPinPosition(evt, effectValue, getPinCoord(startCoord));
+    }
 
     var pinMousemoveHandler = function (moveEvt) {
       moveEvt.preventDefault();
@@ -160,10 +169,7 @@
       var shift = startCoord - moveEvt.clientX;
       startCoord = moveEvt.clientX;
 
-      var coordResult = getCoordResult(shift);
-
-      setPinPosition(coordResult);
-      setEffect(moveEvt, window.form.inputField);
+      setPinPosition(moveEvt, effectValue, getCoordResult(shift));
     };
 
     var pinMouseupHandler = function () {
@@ -175,5 +181,5 @@
     document.addEventListener('mouseup', pinMouseupHandler);
   });
 
-  picturesElement.querySelector('.effects__list').addEventListener('click', sampleFilterClickHandler);
+  picturesElement.querySelector('.effects__list').addEventListener('click', effectClickHandler);
 })();
