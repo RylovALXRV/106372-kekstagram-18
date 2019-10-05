@@ -54,15 +54,15 @@
   var PERCENT_MAX = 100;
 
   var picturesElement = document.querySelector('.pictures');
+  var effectsElement = picturesElement.querySelector('.effects__list');
   var imgPreviewElement = picturesElement.querySelector('.img-upload__preview img');
+  var levelElement = picturesElement.querySelector('.effect-level');
+  var levelInputElement = levelElement.querySelector('.effect-level__value');
   var lineElement = picturesElement.querySelector('.effect-level__line');
   var depthElement = lineElement.querySelector('.effect-level__depth');
   var pinElement = lineElement.querySelector('.effect-level__pin');
-  var levelElement = picturesElement.querySelector('.effect-level');
-  var levelInputElement = levelElement.querySelector('.effect-level__value');
 
-  var effectValue = null;
-  var pinCoord = null;
+  var currentEffect = null;
 
   // Получаю значение пина для фильтра относительно ширины шкалы
   var getPinCoord = function (coord) {
@@ -72,65 +72,62 @@
     return Math.round(pinLocation * PERCENT_MAX / coordsScale.width);
   };
 
-  var getEffectValue = function (evt, name) {
-    pinCoord = getPinCoord(evt.clientX);
+  var getCoordResult = function (coord) {
+    var pinCoord = getPinCoord(coord);
 
-    return (pinCoord * (EffectParameter[name].MAX_VALUE - EffectParameter[name].MIN_VALUE) / PERCENT_MAX
-      + EffectParameter[name].MIN_VALUE) + EffectParameter[name].UNIT;
+    if (pinCoord <= PinValue.MIN) {
+      pinCoord = PinValue.MIN;
+    } else if (pinCoord >= PinValue.MAX) {
+      pinCoord = PinValue.MAX;
+    }
+
+    return pinCoord;
   };
 
-  var applyEffect = function (evt, name) {
-    return EffectParameter[name].PROPERTY + '(' + getEffectValue(evt, name) + ')';
+  var getEffectValue = function (coord) {
+    return (coord * (EffectParameter[currentEffect].MAX_VALUE - EffectParameter[currentEffect].MIN_VALUE) / PERCENT_MAX
+      + EffectParameter[currentEffect].MIN_VALUE) + EffectParameter[currentEffect].UNIT;
   };
 
-  var setEffect = function (evt, effect) {
-    imgPreviewElement.style.filter = applyEffect(evt, effect);
-    levelInputElement.value = pinCoord;
-
-    pinCoord = null;
+  var applyEffect = function (coord) {
+    return EffectParameter[currentEffect].PROPERTY + '(' + getEffectValue(coord, currentEffect) + ')';
   };
 
-  var setPinPosition = function (evt, effect, coord) {
+  var setEffect = function (coord) {
+    imgPreviewElement.style.filter = applyEffect(coord);
+    levelInputElement.value = coord;
+  };
+
+  var setPinPosition = function (coord) {
     pinElement.style.left = coord + '%';
     depthElement.style.width = coord + '%';
 
-    setEffect(evt, effect);
-  };
-
-  var getCoordResult = function (shift) {
-    var coord = (pinElement.offsetLeft - shift) * PinValue.MAX / lineElement.offsetWidth;
-
-    if (coord <= PinValue.MIN) {
-      coord = PinValue.MIN;
-    } else if (coord >= PinValue.MAX) {
-      coord = PinValue.MAX;
-    }
-
-    return coord;
+    setEffect(coord);
   };
 
   var resetEffectValue = function () {
-    if (picturesElement.querySelector('.effects__list input:checked').value === DEFAULT_EFFECT) {
-      effectValue = null;
+    if (effectsElement.querySelector('input:checked').value === DEFAULT_EFFECT) {
+      currentEffect = null;
     }
   };
 
   var toggleEffectLevel = function (target) {
     if (target.value === DEFAULT_EFFECT) {
       levelElement.classList.add('hidden');
+      levelInputElement.value = PERCENT_MAX;
       return;
     }
 
     levelElement.classList.remove('hidden');
   };
 
-  var setMaxLevelEffect = function (name) {
-    var effectPreview = (name !== DEFAULT_EFFECT) ?
-      EffectParameter[name].PROPERTY + '(' + EffectParameter[name].MAX_VALUE
-      + EffectParameter[name].UNIT + ')' :
+  var setMaxLevelEffect = function () {
+    var effectPreview = (currentEffect !== DEFAULT_EFFECT) ?
+      EffectParameter[currentEffect].PROPERTY + '(' + EffectParameter[currentEffect].MAX_VALUE
+      + EffectParameter[currentEffect].UNIT + ')' :
       '';
 
-    imgPreviewElement.className = EffectParameter[name].CLASS;
+    imgPreviewElement.className = EffectParameter[currentEffect].CLASS;
     imgPreviewElement.style.filter = effectPreview;
     depthElement.style.width = '100%';
     pinElement.style.left = '100%';
@@ -141,15 +138,15 @@
 
     resetEffectValue();
 
-    if (target.tagName !== 'INPUT' || target.value === effectValue) {
+    if (target.tagName !== 'INPUT' || target.value === currentEffect) {
       return;
     }
 
     toggleEffectLevel(target);
 
-    effectValue = target.value;
+    currentEffect = target.value;
 
-    setMaxLevelEffect(effectValue);
+    setMaxLevelEffect();
   };
 
   lineElement.addEventListener('mousedown', function (evt) {
@@ -157,10 +154,11 @@
 
     var target = evt.target;
     var startCoord = evt.clientX;
+    var pinCoord = getCoordResult(startCoord);
 
     // условие для того, чтобы при нажатии на пин он не сдвигал курсор мыши в центр
     if (!target.classList.contains('effect-level__pin')) {
-      setPinPosition(evt, effectValue, getPinCoord(startCoord));
+      setPinPosition(pinCoord);
     }
 
     var pinMousemoveHandler = function (moveEvt) {
@@ -168,8 +166,9 @@
 
       var shift = startCoord - moveEvt.clientX;
       startCoord = moveEvt.clientX;
+      pinCoord = getCoordResult(startCoord + shift);
 
-      setPinPosition(moveEvt, effectValue, getCoordResult(shift));
+      setPinPosition(pinCoord);
     };
 
     var pinMouseupHandler = function () {
@@ -181,5 +180,5 @@
     document.addEventListener('mouseup', pinMouseupHandler);
   });
 
-  picturesElement.querySelector('.effects__list').addEventListener('click', effectClickHandler);
+  effectsElement.addEventListener('click', effectClickHandler);
 })();
