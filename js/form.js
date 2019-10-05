@@ -46,8 +46,4 @@
 
     window.util.closePopup(imgOverlayElement, previewCloseKeydownHandler);
   });
-
-  window.form = {
-    inputField: inputChecked
-  };
 })();
