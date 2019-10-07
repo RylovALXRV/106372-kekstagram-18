@@ -17,9 +17,9 @@
       var commentElement = commentTemplate.cloneNode(true);
       var pictureElement = commentElement.querySelector('.social__picture');
 
-      pictureElement.alt = picture.name;
-      pictureElement.src = 'img/avatar-' + window.util.getRandomNumber(1, 6) + '.svg';
-      commentElement.querySelector('.social__text').textContent = comment;
+      pictureElement.alt = comment.name;
+      pictureElement.src = comment.avatar;
+      commentElement.querySelector('.social__text').textContent = comment.message;
 
       commentsElement.appendChild(commentElement);
     });
