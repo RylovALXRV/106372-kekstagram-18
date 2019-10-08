@@ -40,7 +40,7 @@
     mainElement.appendChild(errorElement);
   };
 
-  window.error = {
-    show: showError
+  window.modal = {
+    showError: showError
   };
 })();

@@ -15,7 +15,7 @@
     picturesElement.appendChild(fragment);
   };
 
-  window.backend.load(renderPictures, window.error.show);
+  window.backend.load(renderPictures, window.modal.showError);
 
   bigPictureCancelElement.addEventListener('click', function () {
     window.util.closePopup(bigPictureElement, window.preview.keyDownHandler);
