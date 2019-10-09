@@ -1,46 +1,74 @@
 'use strict';
 
 (function () {
+
   var errorTemplate = document.querySelector('#error').content.querySelector('.error');
+  var successTemplate = document.querySelector('#success').content.querySelector('.success');
+  var imgOverlayElement = document.querySelector('.img-upload__overlay');
   var mainElement = document.querySelector('main');
 
-  var errorCloseKeydownHandler = function (evt) {
+  var modalCloseKeydownHandler = function (evt) {
     if (evt.keyCode === window.util.ESC_KEYCODE) {
-      deletePopup(mainElement.querySelector('.error'), errorCloseKeydownHandler);
+      deletePopup(mainElement.querySelector('.modal'), modalCloseKeydownHandler);
     }
   };
 
-  var deletePopup = function (popup, callback) {
+  var deletePopup = function (popup) {
     popup.remove();
 
-    document.removeEventListener('keydown', callback);
+    document.removeEventListener('keydown', modalCloseKeydownHandler);
   };
 
-  var removeModal = function (modalElement, button) {
-    modalElement.addEventListener('click', function (evt) {
-      var element = document.elementFromPoint(evt.clientX, evt.clientY);
+  var loadErrorFile = function (modalElement, callback) {
+    imgOverlayElement.classList.add('hidden');
 
-      if (modalElement === element || button === evt.target) {
-        deletePopup(modalElement, errorCloseKeydownHandler);
-      }
-    });
+    deletePopup(modalElement);
+    callback();
   };
 
-  var showError = function (errorMessage) {
+  var showError = function (errorMessage, callback) {
     var errorElement = errorTemplate.cloneNode(true);
     var errorButtons = errorElement.querySelectorAll('.error__button');
 
     errorElement.querySelector('.error__title').textContent = errorMessage;
-    errorButtons[0].style.margin = '0px';
-    errorButtons[1].classList.add('hidden');
 
-    document.addEventListener('keydown', errorCloseKeydownHandler);
-    removeModal(errorElement, errorButtons[0]);
+    errorElement.addEventListener('click', function (evt) {
+      var element = document.elementFromPoint(evt.clientX, evt.clientY);
 
+      if (errorElement === element || element.classList.contains('error__button--try')) {
+        deletePopup(errorElement);
+      } else if (element.classList.contains('error__button--load')) {
+        loadErrorFile(errorElement, callback);
+      }
+    });
+
+    // Если окно загрузки фотографии закрыто, значит окно с ошибкой содержит одну кнопку
+    if (imgOverlayElement.classList.contains('hidden')) {
+      errorButtons[0].style.margin = '0px';
+      errorButtons[1].classList.add('hidden');
+    }
+
+    document.addEventListener('keydown', modalCloseKeydownHandler);
     mainElement.appendChild(errorElement);
   };
 
+  var showSuccess = function () {
+    var successElement = successTemplate.cloneNode(true);
+
+    successElement.addEventListener('click', function (evt) {
+      var element = document.elementFromPoint(evt.clientX, evt.clientY);
+
+      if (successElement === element || element.tagName === 'BUTTON') {
+        deletePopup(successElement);
+      }
+    });
+
+    document.addEventListener('keydown', modalCloseKeydownHandler);
+    mainElement.appendChild(successElement);
+  };
+
   window.modal = {
-    showError: showError
+    showError: showError,
+    showSuccess: showSuccess
   };
 })();

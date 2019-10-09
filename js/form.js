@@ -3,15 +3,15 @@
 (function () {
   var picturesElement = document.querySelector('.pictures');
   var descriptionFieldElement = picturesElement.querySelector('.text__description');
+  var formElement = picturesElement.querySelector('.img-upload__form');
   var hashtagInputElement = picturesElement.querySelector('.text__hashtags');
   var imgOverlayElement = picturesElement.querySelector('.img-upload__overlay');
   var imgPreviewElement = picturesElement.querySelector('.img-upload__preview img');
-  var uploadCancelElement = picturesElement.querySelector('.img-upload__cancel');
-  var uploadFileElement = picturesElement.querySelector('#upload-file');
   var inputChecked = picturesElement.querySelector('.effects__list input[checked]');
+  var uploadFileElement = picturesElement.querySelector('#upload-file');
 
   var resetForm = function () {
-    descriptionFieldElement.textContent = '';
+    descriptionFieldElement.value = '';
     hashtagInputElement.value = '';
     imgPreviewElement.style.transform = '';
     imgPreviewElement.style.filter = '';
@@ -35,15 +35,31 @@
     }
   };
 
-  uploadFileElement.addEventListener('change', function () {
+  var closeSuccessFormSubmition = function () {
+    imgOverlayElement.classList.add('hidden');
+
+    window.modal.showSuccess();
+    resetForm();
+  };
+
+  var closeUnsuccessFormSubmition = function (errorMessage) {
+    window.modal.showError(errorMessage, resetForm);
+  };
+
+  picturesElement.querySelector('#upload-file').addEventListener('change', function () {
     setDefaultValuesForm();
 
     window.util.openPopup(imgOverlayElement, previewCloseKeydownHandler);
   });
 
-  uploadCancelElement.addEventListener('click', function () {
+  picturesElement.querySelector('.img-upload__cancel').addEventListener('click', function () {
     resetForm();
 
     window.util.closePopup(imgOverlayElement, previewCloseKeydownHandler);
+  });
+
+  formElement.addEventListener('submit', function (evt) {
+    window.backend.save(new FormData(formElement), closeSuccessFormSubmition, closeUnsuccessFormSubmition);
+    evt.preventDefault();
   });
 })();
