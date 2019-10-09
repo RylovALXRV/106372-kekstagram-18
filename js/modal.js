@@ -6,68 +6,41 @@
   var successTemplate = document.querySelector('#success').content.querySelector('.success');
   var imgOverlayElement = document.querySelector('.img-upload__overlay');
   var mainElement = document.querySelector('main');
-  var picturesElement = document.querySelector('.pictures');
-  var descriptionFieldElement = picturesElement.querySelector('.text__description');
-  var hashtagInputElement = picturesElement.querySelector('.text__hashtags');
-  var imgPreviewElement = picturesElement.querySelector('.img-upload__preview img');
-  var uploadFileElement = picturesElement.querySelector('#upload-file');
 
-  // Перенес ф-ию из form.js для того, чтобы сбрасывать стили в окне с ошибкой,
-  // при нажатии на кнопку Загрузить другой файл
-  var resetForm = function () {
-    descriptionFieldElement.value = '';
-    hashtagInputElement.value = '';
-    imgPreviewElement.style.transform = '';
-    imgPreviewElement.style.filter = '';
-    imgPreviewElement.className = '';
-    uploadFileElement.value = '';
-  };
-
-  var errorCloseKeydownHandler = function (evt) {
+  var modalCloseKeydownHandler = function (evt) {
     if (evt.keyCode === window.util.ESC_KEYCODE) {
-      deletePopup(mainElement.querySelector('.error'), errorCloseKeydownHandler);
+      deletePopup(mainElement.querySelector('.modal'), modalCloseKeydownHandler);
     }
   };
 
-  var successCloseKeydownHandler = function (evt) {
-    if (evt.keyCode === window.util.ESC_KEYCODE) {
-      deletePopup(mainElement.querySelector('.success'), successCloseKeydownHandler);
-    }
-  };
-
-  var deletePopup = function (popup, callback) {
+  var deletePopup = function (popup) {
     popup.remove();
 
-    document.removeEventListener('keydown', callback);
+    document.removeEventListener('keydown', modalCloseKeydownHandler);
   };
 
   var loadErrorFile = function (modalElement, callback) {
     imgOverlayElement.classList.add('hidden');
-    deletePopup(modalElement, callback);
-    resetForm();
+
+    deletePopup(modalElement);
+    callback();
   };
 
-  var removeModal = function (modalElement, callback) {
-    modalElement.addEventListener('click', function (evt) {
-      var element = document.elementFromPoint(evt.clientX, evt.clientY);
-
-      if (modalElement === element || element.classList.contains('error__button--try') ||
-        element.classList.contains('success__button')) {
-        deletePopup(modalElement, callback);
-      } else if (element.classList.contains('error__button--load')) {
-        loadErrorFile(modalElement, callback);
-      }
-    });
-  };
-
-  var showError = function (errorMessage) {
+  var showError = function (errorMessage, callback) {
     var errorElement = errorTemplate.cloneNode(true);
     var errorButtons = errorElement.querySelectorAll('.error__button');
 
     errorElement.querySelector('.error__title').textContent = errorMessage;
 
-    document.addEventListener('keydown', errorCloseKeydownHandler);
-    removeModal(errorElement, errorCloseKeydownHandler);
+    errorElement.addEventListener('click', function (evt) {
+      var element = document.elementFromPoint(evt.clientX, evt.clientY);
+
+      if (errorElement === element || element.classList.contains('error__button--try')) {
+        deletePopup(errorElement);
+      } else if (element.classList.contains('error__button--load')) {
+        loadErrorFile(errorElement, callback);
+      }
+    });
 
     // Если окно загрузки фотографии закрыто, значит окно с ошибкой содержит одну кнопку
     if (imgOverlayElement.classList.contains('hidden')) {
@@ -75,20 +48,26 @@
       errorButtons[1].classList.add('hidden');
     }
 
+    document.addEventListener('keydown', modalCloseKeydownHandler);
     mainElement.appendChild(errorElement);
   };
 
   var showSuccess = function () {
     var successElement = successTemplate.cloneNode(true);
 
-    document.addEventListener('keydown', successCloseKeydownHandler);
-    removeModal(successElement, successCloseKeydownHandler);
+    successElement.addEventListener('click', function (evt) {
+      var element = document.elementFromPoint(evt.clientX, evt.clientY);
 
+      if (successElement === element || element.tagName === 'BUTTON') {
+        deletePopup(successElement);
+      }
+    });
+
+    document.addEventListener('keydown', modalCloseKeydownHandler);
     mainElement.appendChild(successElement);
   };
 
   window.modal = {
-    resetForm: resetForm,
     showError: showError,
     showSuccess: showSuccess
   };
