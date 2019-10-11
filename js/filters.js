@@ -64,18 +64,6 @@
     var fragment = document.createDocumentFragment();
     currentPictures = images;
 
-    filtersElement.addEventListener('click', function (evt) {
-      var target = evt.target;
-      var pictures = getPictures(target, currentPictures);
-
-      buttonActive.classList.remove('img-filters__button--active');
-      target.classList.add('img-filters__button--active');
-
-      renderPictures(pictures);
-
-      buttonActive = target;
-    });
-
     images.forEach(function (image) {
       fragment.appendChild(window.picture.render(image));
     });
@@ -83,6 +71,22 @@
     picturesElement.appendChild(fragment);
     filtersElement.classList.remove('img-filters--inactive');
   };
+
+  filtersElement.addEventListener('click', function (evt) {
+    var target = evt.target;
+
+    if (target.tagName !== 'BUTTON') {
+      return;
+    }
+    var pictures = getPictures(target, currentPictures);
+
+    buttonActive.classList.remove('img-filters__button--active');
+    target.classList.add('img-filters__button--active');
+
+    renderPictures(pictures);
+
+    buttonActive = target;
+  });
 
   window.filters = {
     render: renderCurrentPictures
