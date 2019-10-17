@@ -2,7 +2,7 @@
 
 (function () {
 
-  var PICTURE_FIRST = 0;
+  var START_INDEX = 0;
 
   var Filter = {
     'filter-popular': function (pictures) {
@@ -54,9 +54,9 @@
   var removePictures = function () {
     var pictureCardElements = picturesElement.querySelectorAll('.picture');
 
-    for (var i = PICTURE_FIRST; i < pictureCardElements.length; i++) {
-      pictureCardElements[i].remove();
-    }
+    pictureCardElements.forEach(function (pictureCard) {
+      pictureCard.remove();
+    });
   };
 
   var showPictures = window.debounce(function (images) {
@@ -71,16 +71,16 @@
     picturesElement.appendChild(fragment);
   });
 
-  var createPicture = function (pictureElement) {
-    picture = new Picture(pictureElement,
-        parseFloat(pictureElement.querySelector('.picture__comments').textContent),
-        parseFloat(pictureElement.querySelector('.picture__likes').textContent));
+  var createPicture = function (nodeElement) {
+    picture = new Picture(nodeElement,
+        parseFloat(nodeElement.querySelector('.picture__comments').textContent),
+        parseFloat(nodeElement.querySelector('.picture__likes').textContent));
     return picture;
   };
 
-  var createPictures = function (firstPicture, pictureElement) {
-    for (var i = firstPicture; i < pictureElement.length; i++) {
-      pictureCards.push(createPicture(pictureElement[i]));
+  var createPictures = function (nodeIndex, nodeElements) {
+    for (var i = nodeIndex; i < nodeElements.length; i++) {
+      pictureCards.push(createPicture(nodeElements[i]));
     }
   };
 
@@ -98,7 +98,7 @@
     if (!pictureElements) {
       pictureElements = picturesElement.querySelectorAll('.picture');
 
-      createPictures(PICTURE_FIRST, pictureElements);
+      createPictures(START_INDEX, pictureElements);
     }
 
     pictures = picture.getPictures(target, pictureCards);
