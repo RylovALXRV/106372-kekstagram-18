@@ -1,7 +1,7 @@
 'use strict';
 
 (function () {
-  var IndexAmount = {
+  var IndexNumber = {
     END: 5,
     START: 0
   };
@@ -11,32 +11,22 @@
   var commentsElement = bigPictureElement.querySelector('.social__comments');
   var commentTemplate = document.querySelector('#comment').content.querySelector('.social__comment');
 
-  var commentsList = [];
+  var currentComments = [];
 
   var Index = function (start, end) {
     this.start = start;
     this.end = end;
   };
 
-  Index.prototype.setMaxComments = function (amountComments, comments) {
-    if (amountComments > comments.length) {
-      amountComments = comments.length;
+  Index.prototype.setCommentLastIndex = function (commentLastIndex) {
+    if (commentLastIndex > currentComments.length) {
+      commentLastIndex = currentComments.length;
     }
 
-    this.end = amountComments;
+    this.end = commentLastIndex;
   };
 
-  var index = new Index(IndexAmount.START, IndexAmount.END);
-
-  var getCurrentComments = function (comments) {
-    var commentsArr = [];
-
-    comments.forEach(function (comment) {
-      commentsArr.push(comment);
-    });
-
-    return commentsArr;
-  };
+  var index = new Index(IndexNumber.START, IndexNumber.END);
 
   var renderComment = function (comment) {
     var commentElement = commentTemplate.cloneNode(true);
@@ -49,20 +39,20 @@
     return commentElement;
   };
 
-  var renderComments = function (comments, startIndex, endIndex) {
+  var renderComments = function (comments, indexStart, indexEnd) {
     var fragment = document.createDocumentFragment();
-    commentsList = getCurrentComments(comments);
+    currentComments = comments;
 
-    if (endIndex === commentsList.length) {
+    if (indexEnd === currentComments.length) {
       buttonCommentsElement.classList.add('hidden');
     }
 
-    if (endIndex > commentsList.length) {
-      endIndex = commentsList.length;
+    if (indexEnd > currentComments.length) {
+      indexEnd = currentComments.length;
     }
 
-    for (var i = startIndex; i < endIndex; i++) {
-      fragment.appendChild(renderComment(commentsList[i]));
+    for (var i = indexStart; i < indexEnd; i++) {
+      fragment.appendChild(renderComment(currentComments[i]));
     }
 
     commentsElement.appendChild(fragment);
@@ -71,24 +61,24 @@
   var appendComments = function (comments) {
     commentsElement.innerHTML = '';
 
-    renderComments(comments, IndexAmount.START, IndexAmount.END);
+    renderComments(comments, IndexNumber.START, IndexNumber.END);
 
     // если список всех комментариев изначально меньше загружаемых - скрываем кнопку
-    if (comments.length <= IndexAmount.END) {
+    if (comments.length <= IndexNumber.END) {
       buttonCommentsElement.classList.add('hidden');
     }
   };
 
   var resetCommentsIndex = function () {
-    index.end = IndexAmount.END;
-    index.start = IndexAmount.START;
+    index.end = IndexNumber.END;
+    index.start = IndexNumber.START;
   };
 
   buttonCommentsElement.addEventListener('click', function () {
-    index = new Index(index.start += IndexAmount.END, index.end += IndexAmount.END);
+    index = new Index(index.start += IndexNumber.END, index.end += IndexNumber.END);
 
-    index.setMaxComments(index.end, commentsList);
-    renderComments(commentsList, index.start, index.end);
+    index.setCommentLastIndex(index.end);
+    renderComments(currentComments, index.start, index.end);
   });
 
   window.comments = {
