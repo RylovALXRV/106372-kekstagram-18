@@ -1,6 +1,7 @@
 'use strict';
 
 (function () {
+
   var Scale = {
     MAX: 100,
     MIN: 25,
@@ -15,9 +16,9 @@
   var picturesElement = document.querySelector('.pictures');
   var imgPreviewElement = picturesElement.querySelector('.img-upload__preview img');
   var scaleElement = picturesElement.querySelector('.scale');
-  var scaleBigger = scaleElement.querySelector('.scale__control--bigger');
+  var scaleBiggerElement = scaleElement.querySelector('.scale__control--bigger');
   var scaleInputElement = scaleElement.querySelector('.scale__control--value');
-  var scaleSmaller = scaleElement.querySelector('.scale__control--smaller');
+  var scaleSmallerElement = scaleElement.querySelector('.scale__control--smaller');
 
   var setScaleValue = function (flag) {
     var valueElement = parseFloat(scaleInputElement.value);
@@ -33,11 +34,11 @@
     imgPreviewElement.style.transform = 'scale(' + (totalValue / Scale.MAX) + ')';
   };
 
-  scaleSmaller.addEventListener('click', function () {
+  scaleSmallerElement.addEventListener('click', function () {
     setScaleValue(Flag.MINUS);
   });
 
-  scaleBigger.addEventListener('click', function () {
+  scaleBiggerElement.addEventListener('click', function () {
     setScaleValue(Flag.PLUS);
   });
 })();

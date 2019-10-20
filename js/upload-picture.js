@@ -3,11 +3,11 @@
 (function () {
   var FILE_TYPES = ['gif', 'png', 'jpg', 'jpeg', 'webp'];
 
-  var uploadFile = document.querySelector('#upload-file');
   var uploadElement = document.querySelector('.img-upload__preview img');
+  var uploadFileElement = document.querySelector('#upload-file');
 
-  uploadFile.addEventListener('change', function () {
-    var file = uploadFile.files[0];
+  uploadFileElement.addEventListener('change', function () {
+    var file = uploadFileElement.files[0];
     var fileName = file.name.toLowerCase();
 
     var matches = FILE_TYPES.some(function (fileType) {

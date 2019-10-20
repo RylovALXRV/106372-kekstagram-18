@@ -1,6 +1,7 @@
 'use strict';
 
 (function () {
+
   var bigPictureElement = document.querySelector('.big-picture');
   var bigPictureCancelElement = bigPictureElement.querySelector('.big-picture__cancel');
   var picturesElement = document.querySelector('.pictures');

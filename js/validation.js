@@ -1,7 +1,6 @@
 'use strict';
 
 (function () {
-  var hashtagInputElement = document.querySelector('.pictures .text__hashtags');
 
   var TextError = {
     HASHTAG_FIRST_CHARACTER: 'Хэш-тег начинается с символа # (решётка)',
@@ -18,6 +17,8 @@
     HASHTAGS_AMOUNT: 5,
     MIN_LENGTH: 1
   };
+
+  var hashtagInputElement = document.querySelector('.pictures .text__hashtags');
 
   var checkHashtags = function (target, value) {
     var hashtags = value.split(' ');
