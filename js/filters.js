@@ -22,7 +22,7 @@
 
   var picture = null;
   var pictureElements = null;
-  var pictureCards = [];
+  var pictures = [];
 
   var Picture = function (card, comments, likes) {
     this.card = card;
@@ -85,15 +85,15 @@
     if (!pictureElements) {
       pictureElements = picturesElement.querySelectorAll('.picture');
 
-      for (var i = 0; i < pictureElements.length; i++) {
-        pictureCards.push(createPicture(pictureElements[i]));
-      }
+      pictureElements.forEach(function (pictureElement) {
+        pictures.push(createPicture(pictureElement));
+      });
     }
 
     buttonActiveElement.classList.remove('img-filters__button--active');
     target.classList.add('img-filters__button--active');
 
-    showPictures(picture.getPictures(target, pictureCards));
+    showPictures(picture.getPictures(target, pictures));
 
     buttonActiveElement = target;
   });

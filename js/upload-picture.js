@@ -1,6 +1,7 @@
 'use strict';
 
 (function () {
+
   var FILE_TYPES = ['gif', 'png', 'jpg', 'jpeg', 'webp'];
 
   var uploadElement = document.querySelector('.img-upload__preview img');
