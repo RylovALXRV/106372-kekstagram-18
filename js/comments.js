@@ -1,6 +1,7 @@
 'use strict';
 
 (function () {
+
   var IndexNumber = {
     END: 5,
     START: 0

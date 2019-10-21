@@ -1,13 +1,14 @@
 'use strict';
 
 (function () {
+
   var picturesElement = document.querySelector('.pictures');
   var descriptionFieldElement = picturesElement.querySelector('.text__description');
   var formElement = picturesElement.querySelector('.img-upload__form');
   var hashtagInputElement = picturesElement.querySelector('.text__hashtags');
   var imgOverlayElement = picturesElement.querySelector('.img-upload__overlay');
   var imgPreviewElement = picturesElement.querySelector('.img-upload__preview img');
-  var inputChecked = picturesElement.querySelector('.effects__list input[checked]');
+  var inputCheckedElement = picturesElement.querySelector('.effects__list input[checked]');
   var uploadFileElement = picturesElement.querySelector('#upload-file');
 
   var resetForm = function () {
@@ -21,7 +22,7 @@
 
   var setDefaultValuesForm = function () {
     document.querySelector('.scale .scale__control--value').value = '100%';
-    inputChecked.checked = true;
+    inputCheckedElement.checked = true;
     picturesElement.querySelector('.effect-level').classList.add('hidden');
   };
 

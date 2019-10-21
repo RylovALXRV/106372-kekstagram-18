@@ -2,10 +2,10 @@
 
 (function () {
   var bigPictureElement = document.querySelector('.big-picture');
-  var commentText = bigPictureElement.querySelector('.social__footer-text');
+  var commentTextElement = bigPictureElement.querySelector('.social__footer-text');
 
   var bigPictureCloseKeydownHandler = function (evt) {
-    if (evt.keyCode === window.util.ESC_KEYCODE && evt.target !== commentText) {
+    if (evt.keyCode === window.util.ESC_KEYCODE && evt.target !== commentTextElement) {
       window.util.closePopup(bigPictureElement, bigPictureCloseKeydownHandler);
     }
   };
@@ -26,7 +26,7 @@
   var showBigPicture = function (picture) {
     renderBigPicture(picture);
 
-    commentText.value = '';
+    commentTextElement.value = '';
 
     window.util.openPopup(bigPictureElement, bigPictureCloseKeydownHandler);
   };

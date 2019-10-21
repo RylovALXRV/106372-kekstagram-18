@@ -1,13 +1,13 @@
 'use strict';
 
 (function () {
+
   var bigPictureElement = document.querySelector('.big-picture');
   var bigPictureCancelElement = bigPictureElement.querySelector('.big-picture__cancel');
   var picturesElement = document.querySelector('.pictures');
 
   var renderPictures = function (images) {
     var fragment = document.createDocumentFragment();
-    // currentPictures = images;
 
     images.forEach(function (image) {
       fragment.appendChild(window.picture.render(image));

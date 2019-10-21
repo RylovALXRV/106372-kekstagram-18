@@ -28,7 +28,7 @@
 
   var showError = function (errorMessage, callback) {
     var errorElement = errorTemplate.cloneNode(true);
-    var errorButtons = errorElement.querySelectorAll('.error__button');
+    var errorButtonElements = errorElement.querySelectorAll('.error__button');
 
     errorElement.querySelector('.error__title').textContent = errorMessage;
 
@@ -44,8 +44,8 @@
 
     // Если окно загрузки фотографии закрыто, значит окно с ошибкой содержит одну кнопку
     if (imgOverlayElement.classList.contains('hidden')) {
-      errorButtons[0].style.margin = '0px';
-      errorButtons[1].classList.add('hidden');
+      errorButtonElements[0].style.margin = '0px';
+      errorButtonElements[1].classList.add('hidden');
     }
 
     document.addEventListener('keydown', modalCloseKeydownHandler);

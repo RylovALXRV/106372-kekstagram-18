@@ -1,6 +1,7 @@
 'use strict';
 
 (function () {
+
   var SUCCESS_STATUS = 200;
   var TIMEOUT = 10000;
 

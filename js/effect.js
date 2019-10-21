@@ -1,6 +1,10 @@
 'use strict';
 
 (function () {
+
+  var DEFAULT_EFFECT = 'none';
+  var PERCENT_MAX = 100;
+
   var EffectParameter = {
     chrome: {
       CLASS: 'effects__preview--chrome',
@@ -49,9 +53,6 @@
     MAX: 100,
     MIN: 0
   };
-
-  var DEFAULT_EFFECT = 'none';
-  var PERCENT_MAX = 100;
 
   var picturesElement = document.querySelector('.pictures');
   var effectsElement = picturesElement.querySelector('.effects__list');
@@ -156,7 +157,7 @@
     var startCoord = evt.clientX;
     var pinCoord = getCoordResult(startCoord);
 
-    // условие для того, чтобы при нажатии на пин он не сдвигал курсор мыши в центр
+    // при нажатии на пин он не сдвигал курсор мыши в центр
     if (!target.classList.contains('effect-level__pin')) {
       setPinPosition(pinCoord);
     }

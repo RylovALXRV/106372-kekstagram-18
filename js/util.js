@@ -8,9 +8,6 @@ window.util = (function () {
 
       document.removeEventListener('keydown', callback);
     },
-    getRandomNumber: function (min, max) {
-      return Math.round(Math.random() * (max - min) + min);
-    },
     openPopup: function (element, callback) {
       element.classList.remove('hidden');
 
