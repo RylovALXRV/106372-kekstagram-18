@@ -2,15 +2,15 @@
 
 (function () {
 
+  var Flag = {
+    MINUS: -1,
+    PLUS: 1
+  };
+
   var Scale = {
     MAX: 100,
     MIN: 25,
     STEP: 25
-  };
-
-  var Flag = {
-    MINUS: -1,
-    PLUS: 1
   };
 
   var picturesElement = document.querySelector('.pictures');

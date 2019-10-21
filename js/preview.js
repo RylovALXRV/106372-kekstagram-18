@@ -1,6 +1,7 @@
 'use strict';
 
 (function () {
+
   var bigPictureElement = document.querySelector('.big-picture');
   var commentTextElement = bigPictureElement.querySelector('.social__footer-text');
 

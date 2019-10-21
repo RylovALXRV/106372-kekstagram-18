@@ -73,7 +73,7 @@
     return Math.round(pinLocation * PERCENT_MAX / coordsScale.width);
   };
 
-  var getCoordResult = function (coord) {
+  var getResultCoord = function (coord) {
     var pinCoord = getPinCoord(coord);
 
     if (pinCoord <= PinValue.MIN) {
@@ -155,11 +155,11 @@
 
     var target = evt.target;
     var startCoord = evt.clientX;
-    var pinCoord = getCoordResult(startCoord);
+    var pinResultCoord = getResultCoord(startCoord);
 
     // при нажатии на пин он не сдвигал курсор мыши в центр
     if (!target.classList.contains('effect-level__pin')) {
-      setPinPosition(pinCoord);
+      setPinPosition(pinResultCoord);
     }
 
     var pinMousemoveHandler = function (moveEvt) {
@@ -167,9 +167,9 @@
 
       var shift = startCoord - moveEvt.clientX;
       startCoord = moveEvt.clientX;
-      pinCoord = getCoordResult(startCoord + shift);
+      pinResultCoord = getResultCoord(startCoord + shift);
 
-      setPinPosition(pinCoord);
+      setPinPosition(pinResultCoord);
     };
 
     var pinMouseupHandler = function () {
