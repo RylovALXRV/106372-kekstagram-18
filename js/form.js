@@ -36,14 +36,14 @@
     }
   };
 
-  var closeSuccessFormSubmition = function () {
+  var closeSuccessFormSubmission = function () {
     imgOverlayElement.classList.add('hidden');
 
     window.modal.showSuccess();
     resetForm();
   };
 
-  var closeUnsuccessFormSubmition = function (errorMessage) {
+  var closeUnsuccessFormSubmission = function (errorMessage) {
     window.modal.showError(errorMessage, resetForm);
   };
 
@@ -60,7 +60,7 @@
   });
 
   formElement.addEventListener('submit', function (evt) {
-    window.backend.save(new FormData(formElement), closeSuccessFormSubmition, closeUnsuccessFormSubmition);
+    window.backend.save(new FormData(formElement), closeSuccessFormSubmission, closeUnsuccessFormSubmission);
     evt.preventDefault();
   });
 })();
