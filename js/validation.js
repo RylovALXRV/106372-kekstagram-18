@@ -27,7 +27,7 @@
     for (var i = 0; i < hashtags.length; i++) {
       var hashtag = hashtags[i];
 
-      if (hashtag[0] !== '#') {
+      if (hashtag[0] !== '#' && hashtag !== '') {
         textError = TextError.HASHTAG_FIRST_CHARACTER;
         break;
       } else if (hashtag.length === TextLength.MIN_LENGTH) {
